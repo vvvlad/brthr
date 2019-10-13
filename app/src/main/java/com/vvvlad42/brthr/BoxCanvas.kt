@@ -6,12 +6,12 @@ import android.view.View
 import android.widget.Toast
 import kotlin.math.atan2
 
-public class BoxCanvas(context: Context?) : View(context) {
+class BoxCanvas(context: Context?) : View(context) {
     lateinit var paint: Paint
     lateinit var rect: RectF
     private var path: Path = Path()
     private lateinit var pathMeasure: PathMeasure
-    var pathLength: Float = 0.toFloat()
+    private var pathLength: Float = 0.toFloat()
     lateinit var bm: Bitmap
     private var bmOffsetX: Int = 0
     private var bmOffsetY:Int = 0
