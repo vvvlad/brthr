@@ -67,10 +67,10 @@ class BoxCanvas(context: Context?) : View(context) {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         initMyView()
-        val d: Drawable = ContextCompat.getDrawable(context, R.drawable.autumn)!!
-        d.setBounds(left, top, right, bottom)
-        d.draw(canvas!!)
-        canvas.drawPath(path, paint)
+//        val d: Drawable = ContextCompat.getDrawable(context, R.drawable.autumn)!!
+//        d.setBounds(left, top, right, bottom)
+//        d.draw(canvas!!)
+        canvas!!.drawPath(path, paint)
 
         if (distance < pathLength) {
             pathMeasure.getPosTan(distance, pos, tan)
