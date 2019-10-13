@@ -2,8 +2,10 @@ package com.vvvlad42.brthr
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import kotlin.math.atan2
 
 class BoxCanvas(context: Context?) : View(context) {
@@ -65,7 +67,10 @@ class BoxCanvas(context: Context?) : View(context) {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         initMyView()
-        canvas?.drawPath(path, paint)
+        val d: Drawable = ContextCompat.getDrawable(context, R.drawable.autumn)!!
+        d.setBounds(left, top, right, bottom)
+        d.draw(canvas!!)
+        canvas.drawPath(path, paint)
 
         if (distance < pathLength) {
             pathMeasure.getPosTan(distance, pos, tan)
@@ -75,16 +80,16 @@ class BoxCanvas(context: Context?) : View(context) {
             matrix.postRotate(degrees, bmOffsetX.toFloat(), bmOffsetY.toFloat())
             matrix.postTranslate(pos[0] - bmOffsetX, pos[1] - bmOffsetY)
 
-            canvas?.drawBitmap(bm, matrix, null)
+            canvas.drawBitmap(bm, matrix, null)
 
             distance += step
         } else {
             distance = 0F
         }
 
-        paint.color = Color.RED
-        paint.strokeWidth = 20F
-        canvas?.drawPoint(width/2-width*0.35F, height/2-width*0.35F, paint)
-
+//        paint.color = Color.RED
+//        paint.strokeWidth = 20F
+//        canvas?.drawPoint(width/2-width*0.35F, height/2-width*0.35F, paint)
+        invalidate()
     }
 }
