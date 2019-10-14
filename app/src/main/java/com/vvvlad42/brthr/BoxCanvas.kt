@@ -2,6 +2,7 @@ package com.vvvlad42.brthr
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.Path.Direction.CW
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.Toast
@@ -24,9 +25,8 @@ class BoxCanvas(context: Context?) : View(context) {
     private lateinit var tan: FloatArray
     private lateinit var mtrx: Matrix
 
-
-    private fun initMyView(){
-        paint = Paint()
+    private fun initParams(){
+        paint = Paint(Paint.ANTI_ALIAS_FLAG)
         paint.color = Color.GREEN
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 5F
@@ -34,6 +34,15 @@ class BoxCanvas(context: Context?) : View(context) {
         bm = BitmapFactory.decodeResource(resources, R.drawable.ic_arrow_forward_ios)
         bmOffsetX = bm.width /2
         bmOffsetY = bm.height /2
+        step = 5F
+        distance = 0F
+        pos = FloatArray(2)
+        tan = FloatArray(2)
+        mtrx = Matrix()
+
+    }
+    private fun initMyView(){
+
 
         //Prepare the rectangle (TODO See if needs to be parametrized)
         path.moveTo(width/2-width*0.35F, height/2-width*0.35F)
@@ -44,14 +53,9 @@ class BoxCanvas(context: Context?) : View(context) {
         // Info about the path shown as toast
         pathMeasure = PathMeasure(path, false)
         pathLength = pathMeasure.length
-        Toast.makeText(context, "pathLength: $pathLength", Toast.LENGTH_LONG).show()
+//        Toast.makeText(context, "pathLength: $pathLength", Toast.LENGTH_LONG).show()
 
-        step = 1F
-        distance = 0F
-        pos = FloatArray(2)
-        tan = FloatArray(2)
 
-        mtrx = Matrix()
         // Alternative rectangle implementation, but don't have path info?
         //        this.rect = RectF(width/2-width*0.35F,
         //            height/2-width*0.35F,
@@ -64,6 +68,10 @@ class BoxCanvas(context: Context?) : View(context) {
         //            paint
         //        )
     }
+    init {
+        initParams()
+    }
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         initMyView()
@@ -75,21 +83,24 @@ class BoxCanvas(context: Context?) : View(context) {
         if (distance < pathLength) {
             pathMeasure.getPosTan(distance, pos, tan)
 
-            matrix.reset()
+            mtrx.reset()
             val degrees = (atan2(tan[1], tan[0]) * 180.0 / Math.PI).toFloat()
-            matrix.postRotate(degrees, bmOffsetX.toFloat(), bmOffsetY.toFloat())
-            matrix.postTranslate(pos[0] - bmOffsetX, pos[1] - bmOffsetY)
+            mtrx.postRotate(degrees, bmOffsetX.toFloat(), bmOffsetY.toFloat())
+            mtrx.postTranslate(pos[0] - bmOffsetX, pos[1] - bmOffsetY)
 
-            canvas.drawBitmap(bm, matrix, null)
-
+            canvas.drawBitmap(bm, mtrx, null)
+//            paint.color = Color.RED
+//            paint.strokeWidth = 20F
+//            canvas.drawPoint(mtrx[0]f, mtrx[1], paint)
             distance += step
+
         } else {
             distance = 0F
         }
-
+        invalidate()
 //        paint.color = Color.RED
 //        paint.strokeWidth = 20F
 //        canvas?.drawPoint(width/2-width*0.35F, height/2-width*0.35F, paint)
-        invalidate()
+//        invalidate()
     }
 }
