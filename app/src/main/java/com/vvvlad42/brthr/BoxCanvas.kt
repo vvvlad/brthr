@@ -73,7 +73,8 @@ class BoxCanvas(context: Context?, attrs: AttributeSet?=null) : View(context) {
 
     init {
         initParams()
-        this.setBackgroundColor(Color.rgb(255,255,240))
+//        this.setBackgroundColor(Color.rgb(255,255,240))
+        this.setBackgroundColor(Color.TRANSPARENT)
     }
 
     override fun onDraw(canvas: Canvas?) {
