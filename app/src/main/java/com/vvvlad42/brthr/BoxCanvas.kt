@@ -4,12 +4,13 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.Path.Direction.CW
 import android.graphics.drawable.Drawable
+import android.util.AttributeSet
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import kotlin.math.atan2
 
-class BoxCanvas(context: Context?) : View(context) {
+class BoxCanvas(context: Context?, attrs: AttributeSet?=null) : View(context) {
     lateinit var paint: Paint
     lateinit var rect: RectF
     private var path: Path = Path()
@@ -27,14 +28,15 @@ class BoxCanvas(context: Context?) : View(context) {
 
     private fun initParams(){
         paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        paint.color = Color.GREEN
+        paint.color = Color.rgb(72,209,204)
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 5F
+        paint.strokeWidth = 10F
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.ic_arrow_forward_ios)
         bmOffsetX = bm.width /2
         bmOffsetY = bm.height /2
-        step = 5F
+
+        step = 1F
         distance = 0F
         pos = FloatArray(2)
         tan = FloatArray(2)
@@ -68,8 +70,10 @@ class BoxCanvas(context: Context?) : View(context) {
         //            paint
         //        )
     }
+
     init {
         initParams()
+        this.setBackgroundColor(Color.rgb(255,255,240))
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -78,6 +82,7 @@ class BoxCanvas(context: Context?) : View(context) {
 //        val d: Drawable = ContextCompat.getDrawable(context, R.drawable.autumn)!!
 //        d.setBounds(left, top, right, bottom)
 //        d.draw(canvas!!)
+
         canvas!!.drawPath(path, paint)
 
         if (distance < pathLength) {
@@ -92,7 +97,8 @@ class BoxCanvas(context: Context?) : View(context) {
 //            paint.color = Color.RED
 //            paint.strokeWidth = 20F
 //            canvas.drawPoint(mtrx[0]f, mtrx[1], paint)
-            distance += step
+
+            for (i in 1..20)  distance += step
 
         } else {
             distance = 0F
