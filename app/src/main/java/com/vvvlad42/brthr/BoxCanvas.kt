@@ -9,30 +9,53 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import kotlin.math.atan2
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 
-class BoxCanvas(context: Context?, attrs: AttributeSet?=null) : View(context) {
+
+
+
+
+class BoxCanvas(context: Context, attrs: AttributeSet) : View(context, attrs) {
     lateinit var paint: Paint
     lateinit var rect: RectF
     private var path: Path = Path()
     private lateinit var pathMeasure: PathMeasure
     private var pathLength: Float = 0.toFloat()
+    private var edgeLen:Float = 0.toFloat()
     lateinit var bm: Bitmap
     private var bmOffsetX: Int = 0
     private var bmOffsetY:Int = 0
 
     private var step: Float = 0F
     private var distance: Float = 0F
+    private var secondsPerEdge:Int = 5
+
     private lateinit var pos: FloatArray
     private lateinit var tan: FloatArray
     private lateinit var mtrx: Matrix
 
+    interface ChangeListener {
+        fun onChangeHappened(pathPart:Int)
+        fun onUpdateHappened()
+    }
+    private var listener: ChangeListener? = null
+
+    fun setChangeListener(listener: ChangeListener) {
+        this.listener = listener
+    }
+
+
+    fun resetView(){
+        initParams()
+    }
     private fun initParams(){
         paint = Paint(Paint.ANTI_ALIAS_FLAG)
         paint.color = Color.rgb(72,209,204)
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 10F
 
-        bm = BitmapFactory.decodeResource(resources, R.drawable.ic_arrow_forward_ios)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.ic_follow)
         bmOffsetX = bm.width /2
         bmOffsetY = bm.height /2
 
@@ -44,9 +67,7 @@ class BoxCanvas(context: Context?, attrs: AttributeSet?=null) : View(context) {
 
     }
     private fun initMyView(){
-
-
-        //Prepare the rectangle (TODO See if needs to be parametrized)
+        //Prepare the rectangle
         path.moveTo(width/2-width*0.35F, height/2-width*0.35F)
         path.lineTo(width/2+width*0.35F, height/2-width*0.35F)
         path.lineTo(width/2+width*0.35F, height/2+width*0.35F)
@@ -55,59 +76,43 @@ class BoxCanvas(context: Context?, attrs: AttributeSet?=null) : View(context) {
         // Info about the path shown as toast
         pathMeasure = PathMeasure(path, false)
         pathLength = pathMeasure.length
+
+        edgeLen = pathLength/4
+        step = edgeLen/secondsPerEdge/10
+
 //        Toast.makeText(context, "pathLength: $pathLength", Toast.LENGTH_LONG).show()
 
-
-        // Alternative rectangle implementation, but don't have path info?
-        //        this.rect = RectF(width/2-width*0.35F,
-        //            height/2-width*0.35F,
-        //            width/2+width*0.35F,
-        //            height/2+width*0.35F)
-        //
-        //        canvas?.drawRoundRect(
-        //            this.rect,
-        //            20F, 20F,
-        //            paint
-        //        )
     }
 
     init {
         initParams()
-//        this.setBackgroundColor(Color.rgb(255,255,240))
         this.setBackgroundColor(Color.TRANSPARENT)
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         initMyView()
-//        val d: Drawable = ContextCompat.getDrawable(context, R.drawable.autumn)!!
-//        d.setBounds(left, top, right, bottom)
-//        d.draw(canvas!!)
 
         canvas!!.drawPath(path, paint)
 
-        if (distance < pathLength) {
-            pathMeasure.getPosTan(distance, pos, tan)
 
-            mtrx.reset()
-            val degrees = (atan2(tan[1], tan[0]) * 180.0 / Math.PI).toFloat()
-            mtrx.postRotate(degrees, bmOffsetX.toFloat(), bmOffsetY.toFloat())
-            mtrx.postTranslate(pos[0] - bmOffsetX, pos[1] - bmOffsetY)
+        pathMeasure.getPosTan(distance, pos, tan)
+        mtrx.reset()
+        val degrees = (atan2(tan[1], tan[0]) * 180.0 / Math.PI).toFloat()
+        mtrx.postRotate(degrees, bmOffsetX.toFloat(), bmOffsetY.toFloat())
+        mtrx.postTranslate(pos[0] - bmOffsetX, pos[1] - bmOffsetY)
 
-            canvas.drawBitmap(bm, mtrx, null)
-//            paint.color = Color.RED
-//            paint.strokeWidth = 20F
-//            canvas.drawPoint(mtrx[0]f, mtrx[1], paint)
+        canvas.drawBitmap(bm, mtrx, null)
+        //val passed:Float = pathLength/edgeLen
+//        if (pathLength%edgeLen==0F)
+//            if (listener != null) {
+//                listener?.onChangeHappened((pathLength/edgeLen).toInt())
+//            }
 
-            for (i in 1..20)  distance += step
+//            for (i in 1..20)  distance += step/20
+        distance += step
+        if (distance>=pathLength)
+            distance = step
 
-        } else {
-            distance = 0F
-        }
-        invalidate()
-//        paint.color = Color.RED
-//        paint.strokeWidth = 20F
-//        canvas?.drawPoint(width/2-width*0.35F, height/2-width*0.35F, paint)
-//        invalidate()
     }
 }
